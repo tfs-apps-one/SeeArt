@@ -24,6 +24,10 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
     Paint line_2;               //２行目テキスト
     Paint line_3;               //３行目テキスト
     Paint line_4;               //４行目テキスト
+
+    private int forecolor = 0;  //図形カラー
+    private int backcolor = 0;  //背景色
+
     private long time_count;    //ゲームタイマー
     private int game_level = 1; //ステージ（難易度レベル）
     private int star_num = 0;   //現在の星★の数
@@ -46,9 +50,12 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
     private int game_app_rate_star;         //星　生成の出現率
     private int game_scale;                 //図形の大きさ
 
-    public Painter(Context context) {
+    public Painter(Context context, int color1, int color2) {
         super(context);
         getHolder().addCallback(this);
+        forecolor = color1;
+        backcolor = color2;
+
         line_1 = new Paint();
         line_2 = new Paint();
         line_3 = new Paint();
@@ -57,6 +64,16 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
 
     /* ゲームバランス調整 */
     public void setGameBalance() {
+
+        /*test_make*/
+        if (time_count > 0 && (time_count % 500) == 0){
+            game_level++;
+            if (game_level > 11){
+                game_level = 1;
+            }
+        }
+
+
         switch (game_level){
             case 1: //レベル１  初級
                 game_app_rate_obj = 10;
@@ -124,6 +141,13 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
                 break;
         }
 
+        /*test_make*/
+        /*
+        game_app_rate_obj = 1;
+        game_app_rate_star = 10;
+        game_scale = getWidth()/20;
+        */
+
         /* 準備中の時は、星★の出現率を高める */
         if (game_status == GAME_SETTING) {
             game_app_rate_star = 2;
@@ -164,8 +188,9 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
         float y;
         while(true){
              y = rand.nextInt((int) yc);
-             if (y <= 150 || y >= (getHeight()-150)){
-                 continue;
+             if (y <= 100 || y >= (getHeight()-100)){
+//           if (y <= 150 || y >= (getHeight()-150)){
+                     continue;
              }
              else{
                  break;
@@ -192,7 +217,31 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         PaintData paintData = new PaintData(paint,xc,yc,x,y,dp);
-        paintData.PaintDataSetParam(color_1,color_2,color_3,color_4,scale,stroke,type);
+
+        int COLOR = 255;
+
+        switch (forecolor){
+            default:                                                        break;
+            case 0:                                                         break;
+            case 1: /* 1:赤 */
+                color_2 = COLOR;    color_3 = 0;        color_4 = 0;        break;
+            case 2: /* 2:緑 */
+                color_2 = 0;        color_3 = COLOR;    color_4 = 0;        break;
+            case 3: /* 3:青 */
+                color_2 = 0;        color_3 = 0;        color_4 = COLOR;    break;
+            case 4: /* 4:黄 */
+                color_2 = COLOR;    color_3 = COLOR;    color_4 = 0;        break;
+            case 5: /* 5:橙 */
+                color_2 = COLOR;    color_3 = 0;        color_4 = COLOR;    break;
+            case 6: /* 6:水 */
+                color_2 = 0;        color_3 = COLOR;    color_4 = COLOR;    break;
+            case 7: /* 7:白 */
+                color_2 = COLOR;    color_3 = COLOR;    color_4 = COLOR;    break;
+            case 8: /* 8:黒 */
+                color_2 = 0;        color_3 = 0;        color_4 = 0;        break;
+        }
+
+        paintData.PaintDataSetParam(color_1, color_2, color_3, color_4, scale, stroke, type);
 
         paintList.add(paintData);
     }
@@ -202,9 +251,45 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
      *********************************************************************************/
     protected void drawTextLine(Canvas canvas) {
         float xc = getWidth();
+        float yc = getHeight();
         int font1 = (int)xc*4/100;
         int font2 = (int)xc*5/100;
         int font3 = (int)xc*7/100;
+        int font4 = (int)xc*4/100;
+
+        /*test_make*/
+        if (forecolor == 7) {
+            line_1.setColor(Color.WHITE);
+        }
+        else{
+            line_1.setColor(Color.BLACK);
+        }
+        line_1.setTextSize(font4);
+        line_1.setTypeface(Typeface.DEFAULT_BOLD);
+        line_1.setAntiAlias(true);
+        String buff2 = "Tap to Change Color. ";
+        buff2 += " (";
+//        buff2 += " (color : ";
+        switch (forecolor){
+            case  0:    buff2 += "ALL";     break;
+            case  1:    buff2 += "RED";     break;
+            case  2:    buff2 += "GREEN";   break;
+            case  3:    buff2 += "BLUE";    break;
+            case  4:    buff2 += "YELLOW";  break;
+            case  5:    buff2 += "PINK";    break;
+            case  6:    buff2 += "SKY BLUE"; break;
+            case  7:    buff2 += "WHITE";   break;
+            case  8:    buff2 += "BLACK";   break;
+        }
+//        buff2 += forecolor;
+        buff2 += ", quantity : ";
+        buff2 += game_level;
+        buff2 += ")";
+        canvas.drawText(buff2, 20, (yc-60), line_1);
+
+        if (true) {
+            return;
+        }
 
         String buff = "";
         int _index = game_level;
@@ -353,59 +438,17 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
     protected void drawObject(Canvas canvas) {
 
         /* 背景 */
-        canvas.drawColor(Color.argb(220, 255, 255, 255));   //白で影あり
+        /*test_make*/
+        if (forecolor == 7) {
+            canvas.drawColor(Color.argb(220, 0, 0, 0));   //白で影あり
+        }
+        else{
+            canvas.drawColor(Color.argb(220, 255, 255, 255));   //白で影あり
+        }
 //        canvas.drawColor(Color.argb(255, 255, 255, 255)); //白で影なし
 
         /* テキスト表示 */
         drawTextLine(canvas);
-
-        switch (game_status){
-            /* 初期状態 */
-            case GAME_INITIAL:
-                game_status = GAME_OPEING;
-                return;     //  ★リターン
-            /* オープニング　・・・ゲームスタート・・・ */
-            case GAME_OPEING:
-                if (time_count > 50){
-                    game_status = GAME_SETTING;
-                }
-                return;     //  ★リターン
-            /* ・・・準備中・・・ */
-            case GAME_SETTING:
-                if (time_count > 100 && star_num >= 3){
-                    game_status = GAME_SETEND;
-                    time_count = 200;
-                }
-                break;
-            /*　・・・準備完了・・・ */
-            case GAME_SETEND:
-                if (time_count > 230){
-                    game_status = GAME_PLAYING;
-                }
-                break;
-            /* ゲーム中 */
-            case GAME_PLAYING:
-                /* 星がゼロ個になった場合 */
-                if (star_num <= 0){
-                    game_status = GAME_ENDING;
-                    time_count = 0;
-                }
-                break;
-            /* ステージクリア */
-            case GAME_ENDING:
-                /* オブジェクト全て消去 */
-                for (int i = 0; i < paintList.size(); i++) {
-                    PaintData object = paintList.get(i);
-                    paintList.remove(object);
-                }
-
-                if (time_count > 70){
-                    game_status = GAME_OPEING;
-                    game_level++;
-                    time_count = 0;
-                }
-                return;     //  ★リターン
-        }
 
     /*******************************
      　以下、図形の表示・削除処理
@@ -470,14 +513,19 @@ public class Painter extends SurfaceView implements SurfaceHolder.Callback {
                 Log.v("TAP>>>","xPos=" + event.getX() + ", yPos="+ event.getY());
 
                 /* ゲームプレイ中のみ */
-                if (game_status == GAME_PLAYING) {
+//                if (game_status == GAME_PLAYING) {
                     for (int i = 0; i < paintList.size(); i++) {
                         PaintData object = paintList.get(i);
                         if (object.isObjHit(event.getX(), event.getY()) == true) {
                         }
                     }
-                }
+//                }
 
+                /*test_make*/
+                forecolor++;
+                if (forecolor > 8){
+                    forecolor = 0;
+                }
                 break;
         }
         return super.onTouchEvent(event);
