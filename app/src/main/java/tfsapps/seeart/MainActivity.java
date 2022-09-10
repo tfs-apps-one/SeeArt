@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity implements Painter.Callback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Painter painter = new Painter(this);
+        Painter painter = new Painter(this, 0, 0);
         painter.setCallback(this);
         setContentView(painter);
     }

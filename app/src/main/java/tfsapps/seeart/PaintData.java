@@ -132,11 +132,13 @@ public class PaintData extends PaintParts {
             isAlive = false;    hitpoint = 0;
         }
 //        if (y < -10)                isAlive = false;
-        if (y < 150){
-            isAlive = false;    hitpoint = 0;
+        if (y < 0){
+//        if (y < 150){
+                isAlive = false;    hitpoint = 0;
         }
 //        if (y > screen_y + 10){
-        if (y > (screen_y - 150)){
+        if (y > (screen_y - 50)){
+//        if (y > (screen_y - 150)){
                 isAlive = false;    hitpoint = 0;
         }
 
